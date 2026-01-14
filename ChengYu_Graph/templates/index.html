@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>成渝双城经济圈产业链可视化分析平台</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        body { margin: 0; padding: 0; background-color: #0b1120; color: #fff; font-family: '微软雅黑'; }
+        
+        /* 头部标题样式 */
+        .header {
+            height: 60px;
+            line-height: 60px;
+            text-align: center;
+            font-size: 24px;
+            background: linear-gradient(90deg, #101c3a, #1e3c72);
+            border-bottom: 2px solid #00f2fe;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+        }
+
+        /* 画布容器 */
+        #main-chart {
+            width: 100%;
+            height: calc(100vh - 60px); /* 减去头部高度 */
+        }
+
+        /* 加载动画提示 */
+        #loading {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            color: #00f2fe;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">基于知识图谱的成渝双城经济圈产业链分析平台</div>
+    
+    <div id="loading">系统初始化中，正在加载图谱数据...</div>
+    <div id="main-chart"></div>
+
+    <script type="text/javascript">
+        // 初始化 ECharts 实例
+        var myChart = echarts.init(document.getElementById('main-chart'));
+        
+        // 显示加载动画
+        myChart.showLoading();
+
+        // 核心逻辑：通过 AJAX 请求后端 API
+        $.get('/api/graph-data', function (rawData) {
+            myChart.hideLoading();
+            $('#loading').hide();
+
+            var option = {
+                title: {
+                    text: '重点产业链拓扑结构',
+                    top: 'bottom',
+                    left: 'right',
+                    textStyle: { color: '#ccc' }
+                },
+                tooltip: {},
+                legend: [{
+                    // 图例定义
+                    data: ['核心链主', '配套企业', '政务/园区'],
+                    textStyle: { color: '#fff' }
+                }],
+                series: [
+                    {
+                        type: 'graph',
+                        layout: 'force', // 使用力导向布局
+                        data: rawData.nodes,
+                        links: rawData.links,
+                        categories: [
+                            { name: '核心链主', itemStyle: { color: '#ff4d4f' } }, 
+                            { name: '配套企业', itemStyle: { color: '#40a9ff' } },
+                            { name: '政务/园区', itemStyle: { color: '#52c41a' } }
+                        ],
+                        roam: true, // 允许缩放和平移
+                        label: {
+                            show: true,
+                            position: 'right',
+                            formatter: '{b}'
+                        },
+                        lineStyle: {
+                            color: 'source',
+                            curveness: 0.3 // 连线曲度
+                        },
+                        force: {
+                            repulsion: 1000, // 节点排斥力
+                            edgeLength: 200  // 连线长度
+                        }
+                    }
+                ]
+            };
+
+            // 渲染图表
+            myChart.setOption(option);
+        });
+
+        // 窗口大小改变时自动适配
+        window.onresize = function() {
+            myChart.resize();
+        };
+    </script>
+</body>
+</html>
