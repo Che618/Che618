@@ -43,6 +43,9 @@ const menuItems = [
           <div>
             <p class="font-serif text-2xl">智策良育 · 区域生育政策仿真</p>
             <p class="text-sm text-text-muted">当前沙盘：成都市 / 2025-2030</p>
+            <p class="mt-2 text-xs text-text-muted">
+              叙事注记：以人口温度为镜，衡量政策弹性与代际信心的细微波动。
+            </p>
           </div>
           <div class="flex items-center gap-4">
             <button class="ghost-button">导出政策简报</button>
